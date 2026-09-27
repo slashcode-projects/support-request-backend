@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.slashcode.supportticket.response.ApiResponse;
-import com.slashcode.supportticket.utils.ResponseUtils;
+import com.slashcode.supportticket.util.ResponseUtils;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
 					errors.put(error.getField(), error.getDefaultMessage())
 					);
 		
-		return ResponseUtils.getResponse(HttpStatus.BAD_REQUEST, "Validation Failed", errors);		
+		return ResponseUtils.getResponse(HttpStatus.BAD_REQUEST, "Validation failed", errors);
 	}
 	
 	@ExceptionHandler(UserAlreadyExistException.class)
@@ -39,16 +39,14 @@ public class GlobalExceptionHandler {
 	}
 	
 	@ExceptionHandler(UserNotFoundException.class)
-	public ResponseEntity<ApiResponse<Void>> handleUserNotFoundException(UserNotFoundException exception){
-		
-		return ResponseUtils.getResponse(HttpStatus.NOT_FOUND, exception.getMessage(), null);		
+	public ResponseEntity<ApiResponse<Void>> handleUserNotFoundException(UserNotFoundException exception){		
+		return ResponseUtils.getResponse(HttpStatus.NOT_FOUND, exception.getMessage(), null);
 	}
 	
-	/** Generic for all type of exception, so that we don't send application error from APIs */
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ApiResponse<Void>> handleException(Exception exception){
-		logger.error("An unexpected error occurred", exception);
-		return ResponseUtils.getResponse(HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage(), null);		
+		logger.error("An unexpected error occurred ", exception);
+		return ResponseUtils.getResponse(HttpStatus.INTERNAL_SERVER_ERROR, "There is some issue at server side, please contact admin.", null);
 	}
 	
 }

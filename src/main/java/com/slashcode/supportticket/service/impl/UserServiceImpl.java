@@ -27,13 +27,14 @@ public class UserServiceImpl implements UserService{
 	}
 	
 	private User findUserOrThrow(Long id) {
-	    return userRepository.findById(id)
-	            .orElseThrow(
-	                    () -> new UserNotFoundException(
-	                            "User not found with id " + id
-	                    )
-	            );
+		return userRepository.findById(id)
+        .orElseThrow(
+                () -> new UserNotFoundException(
+                        "User not found with id " + id
+                )
+        );
 	}
+	
 
 	@Override
 	public UserResponse createUser(CreateUserRequest request) {
@@ -44,7 +45,7 @@ public class UserServiceImpl implements UserService{
 		
 		User user = userMapper.toEntity(request);
 		User savedUser = userRepository.save(user);
-		return userMapper.toReponse(savedUser);
+		return userMapper.toResponse(savedUser);
 	}
 
 
@@ -52,29 +53,35 @@ public class UserServiceImpl implements UserService{
 	public List<UserResponse> getAllUsers() {
 		return userRepository.findAll()
 			.stream()
-			.map(user -> userMapper.toReponse(user))
+			.map(user -> userMapper.toResponse(user))
 			.toList();
 	}
 	
 	@Override
 	public UserResponse getUserById(Long id) {
-		return userMapper.toReponse(findUserOrThrow(id));
+		User user = findUserOrThrow(id);
+		return userMapper.toResponse(user);
 	}
 	
 	@Override
 	public UserResponse updateUser(Long id, UpdateUserRequest request) {
-		User user = findUserOrThrow(id);	
+		
+		User user = findUserOrThrow(id);
+		
 		userMapper.toEntity(user, request);
+		
 		User updatedUser = userRepository.save(user);
-		return userMapper.toReponse(updatedUser);
+		return userMapper.toResponse(updatedUser);
 	}
 	
 	@Override
 	public UserResponse updateUserStatus(Long id, UpdateUserStatusRequest request) {
-		User user = findUserOrThrow(id);		
+		
+		User user = findUserOrThrow(id);
 		userMapper.toEntity(user, request);
+		
 		User updatedUser = userRepository.save(user);
-		return userMapper.toReponse(updatedUser);
+		return userMapper.toResponse(updatedUser);
 	}
-
+	
 }

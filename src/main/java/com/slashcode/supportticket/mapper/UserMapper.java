@@ -12,7 +12,8 @@ import com.slashcode.supportticket.model.User;
 @Component
 public class UserMapper {
 
-	public UserResponse toReponse(User user) {
+	
+	public UserResponse toResponse(User user) {
 		UserResponse response = new UserResponse();
 		response.setId(user.getId());
 		response.setFirstName(user.getFirstName());
@@ -25,8 +26,7 @@ public class UserMapper {
 		response.setUpdatedAt(user.getUpdatedAt());
 		return response;
 	}
-
-	/** used in create user */
+	
 	public User toEntity(CreateUserRequest request) {
 		User user = new User();
 		user.setFirstName(request.getFirstName());
@@ -38,17 +38,16 @@ public class UserMapper {
 		user.setStatus(UserStatus.ACTIVE);
 		return user;
 	}
-
-	/** used in update user */
+	
+	
 	public void toEntity(User user, UpdateUserRequest request) {
 		user.setFirstName(request.getFirstName());
 		user.setLastName(request.getLastName());
 		user.setEmail(request.getEmail());
 		user.setRole(request.getRole());
-		user.setDepartment(request.getDepartment());		
+		user.setDepartment(request.getDepartment());
 	}
-
-	/** used in update user status */
+	
 	public void toEntity(User user, UpdateUserStatusRequest request) {
 		user.setStatus(request.getStatus());
 	}
