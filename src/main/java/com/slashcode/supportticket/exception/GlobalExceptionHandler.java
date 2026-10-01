@@ -43,6 +43,20 @@ public class GlobalExceptionHandler {
 		return ResponseUtils.getResponse(HttpStatus.NOT_FOUND, exception.getMessage(), null);
 	}
 	
+	// for Category 
+	
+	@ExceptionHandler(CategoryAlreadyExistsException.class)
+	public ResponseEntity<ApiResponse<Void>> handleCategoryAlreadyExistsException(CategoryAlreadyExistsException exception){
+		return ResponseUtils.getResponse(HttpStatus.CONFLICT, exception.getMessage(), null);
+	}
+	
+	@ExceptionHandler(CategoryNotFoundException.class)
+	public ResponseEntity<ApiResponse<Void>> handleCategoryNotFoundException(CategoryNotFoundException exception){		
+		return ResponseUtils.getResponse(HttpStatus.NOT_FOUND, exception.getMessage(), null);
+	}
+	
+	// generic exception
+	
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ApiResponse<Void>> handleException(Exception exception){
 		logger.error("An unexpected error occurred ", exception);
