@@ -54,8 +54,31 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ApiResponse<Void>> handleCategoryNotFoundException(CategoryNotFoundException exception){		
 		return ResponseUtils.getResponse(HttpStatus.NOT_FOUND, exception.getMessage(), null);
 	}
+
+	// for Tickets
+	
+	@ExceptionHandler(TicketNotFoundException.class)
+	public ResponseEntity<ApiResponse<Void>> handleTicketNotFoundException(TicketNotFoundException exception){		
+		return ResponseUtils.getResponse(HttpStatus.NOT_FOUND, exception.getMessage(), null);
+	}
+	
+	@ExceptionHandler(InvalidTicketStatusException.class)
+	public ResponseEntity<ApiResponse<Void>> handleInvalidTicketStatusException(InvalidTicketStatusException exception){		
+		return ResponseUtils.getResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), null);
+	}
+	
+	@ExceptionHandler(InvalidTicketAssignmentException.class)
+	public ResponseEntity<ApiResponse<Void>> handleInvalidTicketAssignmentException(InvalidTicketAssignmentException exception){		
+		return ResponseUtils.getResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), null);
+	}
+	
 	
 	// generic exception
+	
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(IllegalArgumentException exception){		
+		return ResponseUtils.getResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), null);
+	}
 	
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ApiResponse<Void>> handleException(Exception exception){

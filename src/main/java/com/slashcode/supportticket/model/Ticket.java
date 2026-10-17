@@ -48,11 +48,11 @@ public class Ticket {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "created_by", nullable = false)
-	private User created_by;
+	private User createdBy;
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "assigned_to")
-	private User assigned_to;
+	private User assignedTo;
 	
 	@Column(nullable = false, unique = true)
 	private String ticketNumber; // INC-000001
@@ -119,20 +119,20 @@ public class Ticket {
 		this.category = category;
 	}
 
-	public User getCreated_by() {
-		return created_by;
+	public User getCreatedBy() {
+		return createdBy;
 	}
 
-	public void setCreated_by(User created_by) {
-		this.created_by = created_by;
+	public void setCreatedBy(User createdBy) {
+		this.createdBy = createdBy;
 	}
 
-	public User getAssigned_to() {
-		return assigned_to;
+	public User getAssignedTo() {
+		return assignedTo;
 	}
 
-	public void setAssigned_to(User assigned_to) {
-		this.assigned_to = assigned_to;
+	public void setAssignedTo(User assignedTo) {
+		this.assignedTo = assignedTo;
 	}
 
 	public String getTicketNumber() {
