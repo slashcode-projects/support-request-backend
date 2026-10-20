@@ -72,6 +72,14 @@ public class GlobalExceptionHandler {
 		return ResponseUtils.getResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), null);
 	}
 	
+	// comments
+	
+	@ExceptionHandler(InvalidCommentVisibilityException.class)
+	public ResponseEntity<ApiResponse<Void>> handleInvalidCommentVisibilityException(InvalidCommentVisibilityException exception){		
+		return ResponseUtils.getResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), null);
+	}
+	
+	
 	
 	// generic exception
 	

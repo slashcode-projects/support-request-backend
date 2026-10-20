@@ -31,7 +31,7 @@ public class Comment {
 	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
-	private User commented_by;
+	private User commentedBy;
 
 	@Column(nullable = false, length = 2000)
 	private String message;
@@ -63,12 +63,12 @@ public class Comment {
 		this.ticket = ticket;
 	}
 
-	public User getCommented_by() {
-		return commented_by;
+	public User getCommentedBy() {
+		return commentedBy;
 	}
 
-	public void setCommented_by(User commented_by) {
-		this.commented_by = commented_by;
+	public void setCommentedBy(User commentedBy) {
+		this.commentedBy = commentedBy;
 	}
 
 	public String getMessage() {
