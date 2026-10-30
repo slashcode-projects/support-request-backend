@@ -7,8 +7,6 @@ import com.slashcode.supportticket.dto.category.CreateCategoryRequest;
 import com.slashcode.supportticket.dto.category.UpdateCategoryRequest;
 import com.slashcode.supportticket.dto.category.UpdateCategoryStatusRequest;
 
-import jakarta.validation.Valid;
-
 public interface CategoryService {
 
 	CategoryResponse createCategory(CreateCategoryRequest request);
@@ -17,8 +15,8 @@ public interface CategoryService {
 
 	CategoryResponse getCatgeoryById(Long id);
 
-	CategoryResponse updateCategoryById(Long id, @Valid UpdateCategoryRequest request);
+	CategoryResponse updateCategoryById(Long id, UpdateCategoryRequest request);
 
-	CategoryResponse updateCategoryStatusById(Long id, @Valid UpdateCategoryStatusRequest request);
+	CategoryResponse updateCategoryStatusById(Long id, UpdateCategoryStatusRequest request);
 
 }

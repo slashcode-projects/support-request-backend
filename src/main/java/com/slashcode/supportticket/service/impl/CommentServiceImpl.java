@@ -9,8 +9,8 @@ import com.slashcode.supportticket.dto.comment.CreateCommentRequest;
 import com.slashcode.supportticket.enums.CommentVisiblity;
 import com.slashcode.supportticket.enums.UserRole;
 import com.slashcode.supportticket.exception.InvalidCommentVisibilityException;
-import com.slashcode.supportticket.exception.TicketNotFoundException;
-import com.slashcode.supportticket.exception.UserNotFoundException;
+import com.slashcode.supportticket.exception.ResourceNotFoundException;
+import com.slashcode.supportticket.mapper.CommentMapper;
 import com.slashcode.supportticket.model.Comment;
 import com.slashcode.supportticket.model.Ticket;
 import com.slashcode.supportticket.model.User;
@@ -25,24 +25,26 @@ public class CommentServiceImpl implements CommentService{
 	private final TicketRepository ticketRepository;
 	private final UserRepository userRepository;
 	private final CommentRepository commentRepository;
+	private final CommentMapper commentMapper;
 	
 	public CommentServiceImpl(TicketRepository ticketRepository, UserRepository userRepository,
-			CommentRepository commentRepository) {
+			CommentRepository commentRepository, CommentMapper commentMapper) {
 		this.ticketRepository = ticketRepository;
 		this.userRepository = userRepository;
 		this.commentRepository = commentRepository;
+		this.commentMapper = commentMapper;
 	}
 
 	private Ticket findTicketOrThrow(Long id) {
 		 return ticketRepository.findById(id)
 			.orElseThrow(
-					() -> new TicketNotFoundException("Ticket not found with id: "+id));
+					() -> new ResourceNotFoundException("Ticket not found with id: "+id));
 	}
 	
 	private User findUserOrThrow(Long id) {
 		return userRepository.findById(id)
         .orElseThrow(
-                () -> new UserNotFoundException(
+                () -> new ResourceNotFoundException(
                         "User not found with id " + id
                 )
         );
@@ -57,14 +59,9 @@ public class CommentServiceImpl implements CommentService{
 			throw new InvalidCommentVisibilityException("Employee can only create public comments");
 		}
 		
-		Comment comment = new Comment();
-		comment.setTicket(ticket);
-		comment.setCommentedBy(user);
-		comment.setMessage(request.getMessage().trim());
-		comment.setCommentVisiblity(request.getVisiblity());
-		
+		Comment comment = commentMapper.toEntity(request, ticket, user);
 		Comment savedComment = commentRepository.save(comment);
-		return mapToResponse(savedComment);
+		return commentMapper.toResponse(savedComment);
 	}
 	
 	@Override
@@ -73,22 +70,11 @@ public class CommentServiceImpl implements CommentService{
 		
 		return commentRepository.findByTicketIdOrderByCreatedAtAsc(ticketId)
 			.stream()
-			.map(this::mapToResponse)
+			.map(commentMapper::toResponse)
 			.toList();
 	}
 
-	private CommentResponse mapToResponse(Comment savedComment) {
-		CommentResponse response = new CommentResponse();
-		response.setId(savedComment.getId());
-		response.setTicketId(savedComment.getTicket().getId());
-		response.setUserId(savedComment.getCommentedBy().getId());
-		response.setUserName(savedComment.getCommentedBy().getFirstName()+ " "+savedComment.getCommentedBy().getLastName());
-		response.setMessage(savedComment.getMessage());
-		response.setVisiblity(savedComment.getCommentVisiblity());
-		response.setCreatedAt(savedComment.getCreatedAt());
-		return response;
-	}
-
+	
 	
 
 }

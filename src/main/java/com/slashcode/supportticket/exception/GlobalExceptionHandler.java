@@ -33,61 +33,22 @@ public class GlobalExceptionHandler {
 		return ResponseUtils.getResponse(HttpStatus.BAD_REQUEST, "Validation failed", errors);
 	}
 	
-	@ExceptionHandler(UserAlreadyExistException.class)
-	public ResponseEntity<ApiResponse<Void>> handleUserAlreadyExistException(UserAlreadyExistException exception){
+	@ExceptionHandler({UserAlreadyExistException.class, CategoryAlreadyExistsException.class})
+	public ResponseEntity<ApiResponse<Void>> handleUserAlreadyExistException(RuntimeException exception){
 		return ResponseUtils.getResponse(HttpStatus.CONFLICT, exception.getMessage(), null);
 	}
 	
-	@ExceptionHandler(UserNotFoundException.class)
-	public ResponseEntity<ApiResponse<Void>> handleUserNotFoundException(UserNotFoundException exception){		
+	@ExceptionHandler(ResourceNotFoundException.class)
+	public ResponseEntity<ApiResponse<Void>> handleUserNotFoundException(ResourceNotFoundException exception){		
 		return ResponseUtils.getResponse(HttpStatus.NOT_FOUND, exception.getMessage(), null);
 	}
 	
-	// for Category 
-	
-	@ExceptionHandler(CategoryAlreadyExistsException.class)
-	public ResponseEntity<ApiResponse<Void>> handleCategoryAlreadyExistsException(CategoryAlreadyExistsException exception){
-		return ResponseUtils.getResponse(HttpStatus.CONFLICT, exception.getMessage(), null);
-	}
-	
-	@ExceptionHandler(CategoryNotFoundException.class)
-	public ResponseEntity<ApiResponse<Void>> handleCategoryNotFoundException(CategoryNotFoundException exception){		
-		return ResponseUtils.getResponse(HttpStatus.NOT_FOUND, exception.getMessage(), null);
-	}
-
-	// for Tickets
-	
-	@ExceptionHandler(TicketNotFoundException.class)
-	public ResponseEntity<ApiResponse<Void>> handleTicketNotFoundException(TicketNotFoundException exception){		
-		return ResponseUtils.getResponse(HttpStatus.NOT_FOUND, exception.getMessage(), null);
-	}
-	
-	@ExceptionHandler(InvalidTicketStatusException.class)
-	public ResponseEntity<ApiResponse<Void>> handleInvalidTicketStatusException(InvalidTicketStatusException exception){		
+	@ExceptionHandler({InvalidTicketStatusException.class, InvalidTicketAssignmentException.class, InvalidCommentVisibilityException.class, IllegalArgumentException.class})
+	public ResponseEntity<ApiResponse<Void>> handleBadRequestExceptions(RuntimeException exception){		
 		return ResponseUtils.getResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), null);
-	}
-	
-	@ExceptionHandler(InvalidTicketAssignmentException.class)
-	public ResponseEntity<ApiResponse<Void>> handleInvalidTicketAssignmentException(InvalidTicketAssignmentException exception){		
-		return ResponseUtils.getResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), null);
-	}
-	
-	// comments
-	
-	@ExceptionHandler(InvalidCommentVisibilityException.class)
-	public ResponseEntity<ApiResponse<Void>> handleInvalidCommentVisibilityException(InvalidCommentVisibilityException exception){		
-		return ResponseUtils.getResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), null);
-	}
-	
-	
+	}	
 	
 	// generic exception
-	
-	@ExceptionHandler(IllegalArgumentException.class)
-	public ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(IllegalArgumentException exception){		
-		return ResponseUtils.getResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), null);
-	}
-	
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ApiResponse<Void>> handleException(Exception exception){
 		logger.error("An unexpected error occurred ", exception);

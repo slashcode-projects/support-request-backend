@@ -9,13 +9,11 @@ import com.slashcode.supportticket.dto.category.CreateCategoryRequest;
 import com.slashcode.supportticket.dto.category.UpdateCategoryRequest;
 import com.slashcode.supportticket.dto.category.UpdateCategoryStatusRequest;
 import com.slashcode.supportticket.exception.CategoryAlreadyExistsException;
-import com.slashcode.supportticket.exception.CategoryNotFoundException;
+import com.slashcode.supportticket.exception.ResourceNotFoundException;
 import com.slashcode.supportticket.mapper.CategoryMapper;
 import com.slashcode.supportticket.model.Category;
 import com.slashcode.supportticket.respository.CategoryRepository;
 import com.slashcode.supportticket.service.CategoryService;
-
-import jakarta.validation.Valid;
 
 @Service
 public class CategoryServiceImpl implements CategoryService{
@@ -31,7 +29,7 @@ public class CategoryServiceImpl implements CategoryService{
 	private Category findCategoryOrThrow(Long id) {
 		return categoryRepository.findById(id)
 		.orElseThrow(
-				() -> new CategoryNotFoundException("Category not found with id : "+id)
+				() -> new ResourceNotFoundException("Category not found with id : "+id)
 				);
 	}
 
@@ -66,7 +64,7 @@ public class CategoryServiceImpl implements CategoryService{
 	}
 	
 	@Override
-	public CategoryResponse updateCategoryById(Long id, @Valid UpdateCategoryRequest request) {
+	public CategoryResponse updateCategoryById(Long id, UpdateCategoryRequest request) {
 		Category category = findCategoryOrThrow(id);
 		
 		if(!category.getName().equals(request.getName()) && categoryRepository.existsByNameIgnoreCase(request.getName())) {
@@ -81,7 +79,7 @@ public class CategoryServiceImpl implements CategoryService{
 
 
 	@Override
-	public CategoryResponse updateCategoryStatusById(Long id, @Valid UpdateCategoryStatusRequest request) {
+	public CategoryResponse updateCategoryStatusById(Long id, UpdateCategoryStatusRequest request) {
 		Category category = findCategoryOrThrow(id);
 		
 		categoryMapper.toEntity(category, request);

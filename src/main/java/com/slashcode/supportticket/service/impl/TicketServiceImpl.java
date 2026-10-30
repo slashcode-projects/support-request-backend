@@ -10,11 +10,10 @@ import com.slashcode.supportticket.dto.ticket.TicketResponse;
 import com.slashcode.supportticket.dto.ticket.UpdateTicketStatusRequest;
 import com.slashcode.supportticket.enums.TicketStatus;
 import com.slashcode.supportticket.enums.UserRole;
-import com.slashcode.supportticket.exception.CategoryNotFoundException;
 import com.slashcode.supportticket.exception.InvalidTicketAssignmentException;
 import com.slashcode.supportticket.exception.InvalidTicketStatusException;
-import com.slashcode.supportticket.exception.TicketNotFoundException;
-import com.slashcode.supportticket.exception.UserNotFoundException;
+import com.slashcode.supportticket.exception.ResourceNotFoundException;
+import com.slashcode.supportticket.mapper.TicketMapper;
 import com.slashcode.supportticket.model.Category;
 import com.slashcode.supportticket.model.Ticket;
 import com.slashcode.supportticket.model.User;
@@ -29,18 +28,20 @@ public class TicketServiceImpl implements TicketService{
 	private final TicketRepository ticketRepository;
 	private final UserRepository userRepository;
 	private final CategoryRepository categoryRepository;
+	private final TicketMapper ticketMapper;
 	
 	public TicketServiceImpl(TicketRepository ticketRepository, UserRepository userRepository,
-			CategoryRepository categoryRepository) {
+			CategoryRepository categoryRepository, TicketMapper ticketMapper) {
 		this.ticketRepository = ticketRepository;
 		this.userRepository = userRepository;
 		this.categoryRepository = categoryRepository;
+		this.ticketMapper = ticketMapper;
 	}
 	
 	private User findUserOrThrow(Long id) {
 		return userRepository.findById(id)
         .orElseThrow(
-                () -> new UserNotFoundException(
+                () -> new ResourceNotFoundException(
                         "User not found with id " + id
                 )
         );
@@ -49,65 +50,53 @@ public class TicketServiceImpl implements TicketService{
 	private Category findCategoryOrThrow(Long id) {
 		return categoryRepository.findById(id)
 		.orElseThrow(
-				() -> new CategoryNotFoundException("Category not found with id : "+id)
+				() -> new ResourceNotFoundException("Category not found with id : "+id)
 				);
 	}
 	
 	private Ticket findTicketOrThrow(Long id) {
 		 return ticketRepository.findById(id)
 			.orElseThrow(
-					() -> new TicketNotFoundException("Ticket not found with id: "+id));
+					() -> new ResourceNotFoundException("Ticket not found with id: "+id));
 	}
 
 	@Override
 	public TicketResponse createTicket(CreateTicketRequest request) {
 		
 		User user = findUserOrThrow(request.getCreatedById());
-		
 		Category category = findCategoryOrThrow(request.getCategoryId());
 		
 		if(!category.getActive()) {
 			throw new IllegalArgumentException("Category is inactive");
 		}
 		
-		Ticket ticket = new Ticket();
-		
-		ticket.setTitle(request.getTitle());
-		ticket.setDescription(request.getDescription());
-		ticket.setPriority(request.getPriority());
-		ticket.setCategory(category);
-		ticket.setCreatedBy(user);
-		
-		ticket.setStatus(TicketStatus.OPEN);
+		Ticket ticket = ticketMapper.toEntity(request, category, user);
 		ticket.setTicketNumber(generateTicketNumber());
-		
 		Ticket savedTicket = ticketRepository.save(ticket);
-	
-		return mapToResponse(savedTicket);
+		return ticketMapper.toResponse(savedTicket);
 	}
 
 	@Override
 	public List<TicketResponse> getAllTickets() {
 		return ticketRepository.findAll()
 			.stream()
-			.map(this::mapToResponse)
+			.map(ticketMapper::toResponse)
 			.toList();			
 	}	
 	
 	@Override
 	public TicketResponse getTicketById(Long id) {
 		Ticket ticket = findTicketOrThrow(id);
-		return mapToResponse(ticket);
+		return ticketMapper.toResponse(ticket);
 	}
 	
 	
 	@Override
 	public List<TicketResponse> getMyTickets(Long userId) {
 		findUserOrThrow(userId);
-		
 		return ticketRepository.findByCreatedById(userId)
 				.stream()
-				.map(this::mapToResponse)
+				.map(ticketMapper::toResponse)
 				.toList();
 	}
 	
@@ -116,13 +105,11 @@ public class TicketServiceImpl implements TicketService{
 		
 		Ticket ticket = findTicketOrThrow(id);
 		
-		validateStatusTransition(ticket.getStatus(), request.getStatus());
+		request.validateStatusTransition(ticket.getStatus());
 		
 		ticket.setStatus(request.getStatus());
-		
 		Ticket updatedTicket = ticketRepository.save(ticket);
-		
-		return mapToResponse(updatedTicket);
+		return ticketMapper.toResponse(updatedTicket);
 	}
 	
 
@@ -153,97 +140,20 @@ public class TicketServiceImpl implements TicketService{
 		
 		Ticket updatedTicket = ticketRepository.save(ticket);
 		
-		return mapToResponse(updatedTicket);
+		return ticketMapper.toResponse(updatedTicket);
 	}
 	
 	@Override
 	public void cancelTicket(Long id) {
 		Ticket ticket = findTicketOrThrow(id);
-		
 		if(ticket.getStatus() == TicketStatus.CLOSED) {
 			throw new InvalidTicketStatusException("Closed ticket cannot be cancelled");
 		}
-		
 		if(ticket.getStatus() == TicketStatus.CANCELLED) {
 			throw new InvalidTicketStatusException("Ticket is already cancelled");
 		}
-		
 		ticket.setStatus(TicketStatus.CANCELLED);
-		
 		ticketRepository.save(ticket);
-	}
-	
-	
-	private void validateStatusTransition(TicketStatus current, TicketStatus next) {
-		
-		if(current == TicketStatus.CLOSED) {
-			throw new InvalidTicketStatusException("Closed ticket cannot be updated");
-		}
-		
-		if(current == TicketStatus.CANCELLED) {
-			throw new InvalidTicketStatusException("Cancelled ticket cannot be updated");			
-		}
-		
-		if(current == TicketStatus.OPEN
-				&& next != TicketStatus.ASSIGNED 
-				&& next != TicketStatus.CANCELLED
-				) {
-			throw new InvalidTicketStatusException("OPEN ticket can only be assigned or cancelled");
-		}
-		
-		if(current == TicketStatus.ASSIGNED
-				&& next != TicketStatus.CANCELLED
-				&& next != TicketStatus.IN_PROGRESS
-				) {
-			throw new InvalidTicketStatusException("ASSIGNED ticket can only move to IN_PROGRESS or CANCELLED");
-		}
-		
-		if(current == TicketStatus.IN_PROGRESS
-				&& next != TicketStatus.WAITING_FOR_USER
-				&& next != TicketStatus.RESOLVED
-				) {
-			throw new InvalidTicketStatusException("IN_PROGRESS ticket can only move to WAITING_FOR_USER or RESOLVED");
-		}
-		
-		if(current == TicketStatus.WAITING_FOR_USER 
-				&& next != TicketStatus.IN_PROGRESS) {
-			throw new InvalidTicketStatusException("WAITING_FOR_USER ticket can only move to IN_PROGRESS");
-		}
-		
-		
-		if(current == TicketStatus.RESOLVED
-				&& next != TicketStatus.CLOSED
-				&& next != TicketStatus.IN_PROGRESS) {
-			throw new InvalidTicketStatusException("RESOLVED ticket can only be closed ot reopned");
-		}
-		
-	}
-
-	private TicketResponse mapToResponse(Ticket ticket) {
-		TicketResponse response = new TicketResponse();
-		
-		response.setId(ticket.getId());
-		response.setTicketNumber(ticket.getTicketNumber());
-		response.setTitle(ticket.getTitle());
-		response.setDescription(ticket.getDescription());
-		response.setPriority(ticket.getPriority());
-		response.setStatus(ticket.getStatus());
-		
-		response.setCategoryId(ticket.getCategory().getId());
-		response.setCategoryName(ticket.getCategory().getName());
-		
-		response.setCreatedById(ticket.getCreatedBy().getId());
-		response.setCreatedByName(ticket.getCreatedBy().getFirstName()+" "+ticket.getCreatedBy().getLastName());
-		
-		if(ticket.getAssignedTo()!=null) {
-			response.setAssignedToId(ticket.getAssignedTo().getId());
-			response.setAssignedToName(ticket.getAssignedTo().getFirstName()+" "+ticket.getAssignedTo().getLastName());
-		}
-		
-		response.setCreatedAt(ticket.getCreatedAt());
-		response.setUpdatedAt(ticket.getUpdatedAt());
-		
-		return response;
 	}
 
 	private String generateTicketNumber() {

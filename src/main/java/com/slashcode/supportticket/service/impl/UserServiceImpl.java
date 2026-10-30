@@ -8,8 +8,8 @@ import com.slashcode.supportticket.dto.user.CreateUserRequest;
 import com.slashcode.supportticket.dto.user.UpdateUserRequest;
 import com.slashcode.supportticket.dto.user.UpdateUserStatusRequest;
 import com.slashcode.supportticket.dto.user.UserResponse;
+import com.slashcode.supportticket.exception.ResourceNotFoundException;
 import com.slashcode.supportticket.exception.UserAlreadyExistException;
-import com.slashcode.supportticket.exception.UserNotFoundException;
 import com.slashcode.supportticket.mapper.UserMapper;
 import com.slashcode.supportticket.model.User;
 import com.slashcode.supportticket.respository.UserRepository;
@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService{
 	private User findUserOrThrow(Long id) {
 		return userRepository.findById(id)
         .orElseThrow(
-                () -> new UserNotFoundException(
+                () -> new ResourceNotFoundException(
                         "User not found with id " + id
                 )
         );
