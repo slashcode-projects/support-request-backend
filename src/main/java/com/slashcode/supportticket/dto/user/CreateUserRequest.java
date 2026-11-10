@@ -23,7 +23,7 @@ public class CreateUserRequest {
 	private String email;
 	
 	@NotBlank(message = "Password is required")
-	@Size(min = 6, message ="Password must contains at least 6 chars")
+	@Size(min = 8, message ="Password must contains at least 6 chars")
 	private String password;
 	
 	@NotNull(message = "Role is required")

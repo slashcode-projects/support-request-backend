@@ -32,7 +32,6 @@ public class UserMapper {
 		user.setFirstName(request.getFirstName());
 		user.setLastName(request.getLastName());
 		user.setEmail(request.getEmail());
-		user.setPassword(request.getPassword());
 		user.setDepartment(request.getDepartment());
 		user.setRole(request.getRole());
 		user.setStatus(UserStatus.ACTIVE);

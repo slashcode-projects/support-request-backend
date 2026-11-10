@@ -2,6 +2,7 @@ package com.slashcode.supportticket.service.impl;
 
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.slashcode.supportticket.dto.user.CreateUserRequest;
@@ -20,10 +21,12 @@ public class UserServiceImpl implements UserService{
 
 	private final UserRepository userRepository;
 	private final UserMapper userMapper;
+	private final PasswordEncoder passwordEncoder;
 	
-	public UserServiceImpl(UserRepository userRepository, UserMapper userMapper) {
+	public UserServiceImpl(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
 		this.userRepository = userRepository;
 		this.userMapper = userMapper;
+		this.passwordEncoder = passwordEncoder;
 	}
 	
 	private User findUserOrThrow(Long id) {
@@ -44,6 +47,7 @@ public class UserServiceImpl implements UserService{
 		}
 		
 		User user = userMapper.toEntity(request);
+		user.setPassword(passwordEncoder.encode(request.getPassword()));
 		User savedUser = userRepository.save(user);
 		return userMapper.toResponse(savedUser);
 	}
