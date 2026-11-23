@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,12 +35,14 @@ public class TicketController {
 		this.ticketService = ticketService;
 	}
 
+	@Secured({"ROLE_ADMIN", "ROLE_EMPLOYEE"})
 	@PostMapping
 	public ResponseEntity<ApiResponse<TicketResponse>> createTicket(@Valid @RequestBody CreateTicketRequest request){
 		TicketResponse response = ticketService.createTicket(request);
 		return ResponseUtils.getResponse(HttpStatus.CREATED, "Ticket created successfully", response);
 	}
 	
+	@Secured({"ROLE_ADMIN", "ROLE_SUPPORT", "ROLE_EMPLOYEE"})
 	@GetMapping
 	public ResponseEntity<ApiResponse<List<TicketResponse>>> getAllTickets(){
 		List<TicketResponse> response = ticketService.getAllTickets();
@@ -47,6 +50,7 @@ public class TicketController {
 		
 	}
 	
+	@Secured({"ROLE_ADMIN", "ROLE_SUPPORT", "ROLE_EMPLOYEE"})
 	@GetMapping("/{id}")
 	public ResponseEntity<ApiResponse<TicketResponse>> getTicketById(@PathVariable Long id){
 		TicketResponse response = ticketService.getTicketById(id);
@@ -54,6 +58,7 @@ public class TicketController {
 		
 	}
 	
+	@Secured({"ROLE_ADMIN", "ROLE_SUPPORT", "ROLE_EMPLOYEE"})
 	@GetMapping("/my")
 	public ResponseEntity<ApiResponse<List<TicketResponse>>> getMyTickets(@RequestParam Long userId){
 		List<TicketResponse> response = ticketService.getMyTickets(userId);
@@ -61,6 +66,7 @@ public class TicketController {
 		
 	}
 	
+	@Secured({"ROLE_ADMIN", "ROLE_SUPPORT"})
 	@PutMapping("/{id}/status")
 	public ResponseEntity<ApiResponse<TicketResponse>> updateStatus(@PathVariable Long id, @Valid @RequestBody UpdateTicketStatusRequest request){
 		
@@ -68,6 +74,7 @@ public class TicketController {
 		return ResponseUtils.getResponse(HttpStatus.OK, "Ticket updated successfully", response);
 	}
 	
+	@Secured({"ROLE_ADMIN", "ROLE_SUPPORT"})
 	@PutMapping("/{id}/assign")
 	public ResponseEntity<ApiResponse<TicketResponse>> assignTicket(@PathVariable Long id, @Valid @RequestBody AssignTicketRequest request){
 		
@@ -75,9 +82,11 @@ public class TicketController {
 		return ResponseUtils.getResponse(HttpStatus.OK, "Ticket assigned successfully", response);
 	}
 	
+	@Secured({"ROLE_ADMIN"})
 	@DeleteMapping("/{id}")
 	public ResponseEntity<ApiResponse<Void>> cancelTicket(@PathVariable Long id){
 		ticketService.cancelTicket(id);
 		return ResponseUtils.getResponse(HttpStatus.OK, "Ticket cancelled successfully", null);
 	}
+	
 }

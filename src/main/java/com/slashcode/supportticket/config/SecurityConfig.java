@@ -6,6 +6,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -13,9 +14,11 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
 	private final SecurityExceptionHandler securityExceptionHandler;
+	private final JwtAuthenticationConverter jwtAuthenticationConverter;
 	
-	public SecurityConfig(SecurityExceptionHandler securityExceptionHandler) {
+	public SecurityConfig(SecurityExceptionHandler securityExceptionHandler, JwtAuthenticationConverter jwtAuthenticationConverter) {
 		this.securityExceptionHandler = securityExceptionHandler;
+		this.jwtAuthenticationConverter = jwtAuthenticationConverter;
 	}
 
 	@Bean
@@ -35,8 +38,16 @@ public class SecurityConfig {
 					.accessDeniedHandler(securityExceptionHandler))
 			
 			.authorizeHttpRequests(auth -> auth
-					.requestMatchers("/auth/**").permitAll()
-					.anyRequest().authenticated());
+					.requestMatchers("/auth/login").permitAll()
+					.anyRequest().authenticated())
+			
+			.oauth2ResourceServer(oauth2 ->
+					oauth2
+					.jwt( jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter))
+					.authenticationEntryPoint(securityExceptionHandler)
+					.accessDeniedHandler(securityExceptionHandler)
+					)
+			;
 		
 		return http.build();
 	}

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +30,7 @@ public class CommentController {
 		this.commentService = commentService;
 	}
 
+	@Secured({"ROLE_ADMIN", "ROLE_SUPPORT", "ROLE_EMPLOYEE"})
 	@PostMapping
 	public ResponseEntity<ApiResponse<CommentResponse>> addComment(
 			@PathVariable Long ticketId,
@@ -39,7 +41,7 @@ public class CommentController {
 		return ResponseUtils.getResponse(HttpStatus.CREATED, "Comment created successfully", commentResponse);
 	}
 	
-	
+	@Secured({"ROLE_ADMIN", "ROLE_SUPPORT", "ROLE_EMPLOYEE"})
 	@GetMapping
 	public ResponseEntity<ApiResponse<List<CommentResponse>>> getCommentsByTicketId(@PathVariable Long ticketId){
 		List<CommentResponse> response = commentService.getCommentsByTicketId(ticketId);

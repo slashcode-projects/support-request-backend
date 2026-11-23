@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,12 +34,14 @@ public class CategoryController {
 		this.categoryService = categoryService;
 	}
 
+	@Secured("ROLE_ADMIN")
 	@PostMapping
 	public ResponseEntity<ApiResponse<CategoryResponse>> createCategory(@Valid @RequestBody CreateCategoryRequest request){
 		CategoryResponse response = categoryService.createCategory(request);
 		return ResponseUtils.getResponse(HttpStatus.CREATED, "Category created successfully", response);
 	}
 	
+	@Secured({"ROLE_ADMIN", "ROLE_SUPPORT", "ROLE_EMPLOYEE"})
 	@GetMapping
 	public ResponseEntity<ApiResponse<List<CategoryResponse>>> getAllCategories(){
 		
@@ -47,6 +50,7 @@ public class CategoryController {
 		
 	}
 	
+	@Secured({"ROLE_ADMIN", "ROLE_SUPPORT", "ROLE_EMPLOYEE"})
 	@GetMapping("/{id}")
 	public ResponseEntity<ApiResponse<CategoryResponse>> getCategoryById(@PathVariable Long id){
 		
@@ -55,6 +59,7 @@ public class CategoryController {
 		
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@PutMapping("/{id}")
 	public ResponseEntity<ApiResponse<CategoryResponse>> updateCategory(@PathVariable Long id, @Valid @RequestBody UpdateCategoryRequest request){
 		
@@ -62,6 +67,7 @@ public class CategoryController {
 		return ResponseUtils.getResponse(HttpStatus.OK, "Category updated successfully", response);
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@PatchMapping("/{id}/status")
 	public ResponseEntity<ApiResponse<CategoryResponse>> updateCategoryStatus(@PathVariable Long id, @Valid @RequestBody UpdateCategoryStatusRequest request){
 		

@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -46,7 +48,17 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler({InvalidTicketStatusException.class, InvalidTicketAssignmentException.class, InvalidCommentVisibilityException.class, IllegalArgumentException.class})
 	public ResponseEntity<ApiResponse<Void>> handleBadRequestExceptions(RuntimeException exception){		
 		return ResponseUtils.getResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), null);
-	}	
+	}
+	
+	@ExceptionHandler(AuthenticationException.class)
+	public ResponseEntity<ApiResponse<Void>> handleAuthenticationException(AuthenticationException ex){
+		return ResponseUtils.getResponse(HttpStatus.UNAUTHORIZED, "Invalid email or password", null);
+	}
+	
+	@ExceptionHandler(AuthorizationDeniedException.class)
+	public ResponseEntity<ApiResponse<Void>> handleAuthorizationDeniedException(AuthorizationDeniedException ex){
+		return ResponseUtils.getResponse(HttpStatus.FORBIDDEN, "You do not have permission to access, please contact admin", null);
+	}
 	
 	// generic exception
 	@ExceptionHandler(Exception.class)
