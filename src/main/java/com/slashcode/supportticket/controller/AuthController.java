@@ -13,6 +13,7 @@ import com.slashcode.supportticket.response.ApiResponse;
 import com.slashcode.supportticket.service.AuthService;
 import com.slashcode.supportticket.util.ResponseUtils;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController
@@ -26,9 +27,12 @@ public class AuthController {
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<ApiResponse<TokenResponse>> login(@Valid @RequestBody LoginRequest request){
+	public ResponseEntity<ApiResponse<TokenResponse>> login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest){
 		
-		TokenResponse response = authService.login(request);
+		String deviceInfo = httpRequest.getHeader("User-Agent");
+		String ipAddress = httpRequest.getRemoteAddr();
+		
+		TokenResponse response = authService.login(request, deviceInfo, ipAddress);
 		return ResponseUtils.getResponse(HttpStatus.OK, "Login Successful", response);
 	}
 	

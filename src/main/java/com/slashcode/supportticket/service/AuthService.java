@@ -5,6 +5,6 @@ import com.slashcode.supportticket.dto.auth.TokenResponse;
 
 public interface AuthService {
 
-	TokenResponse login(LoginRequest request);
+	TokenResponse login(LoginRequest request, String deviceInfo, String ipAddress);
 	
 }

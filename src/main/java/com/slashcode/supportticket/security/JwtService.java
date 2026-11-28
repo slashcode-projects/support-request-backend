@@ -2,6 +2,7 @@ package com.slashcode.supportticket.security;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -25,7 +26,7 @@ public class JwtService {
 		this.jwtProperties = jwtProperties;
 	}
 	
-	public String generateAccessToken(CustomUserDetails userDetails) {
+	public String generateAccessToken(CustomUserDetails userDetails, UUID sessionId) {
 		
 		Instant issuedAt = Instant.now();
 		
@@ -40,6 +41,7 @@ public class JwtService {
 							.expiresAt(issuedAt.plusSeconds(jwtProperties.getAccessTokenTtlSeconds()))
 							.subject(userDetails.getUsername())
 							.claim("userId", userDetails.getId())
+							.claim("sid", sessionId.toString())
 							.claim("roles", roles)
 							.build();
 		
